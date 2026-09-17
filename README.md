@@ -144,6 +144,24 @@ gera um `implementer` genérico. A lista de palavras-chave e as
 convenções de pasta conhecidas (hoje só Laravel) ficam em
 `STACK_DETECTORS` e `FRAMEWORK_LAYER_PATHS`, no `bin/cli.js`.
 
+## Fluxo de release (scripts prontos)
+
+Em vez de rodar `git add` / `commit` / `npm version` / `git push` na mão
+toda vez, use um dos scripts na raiz do repositório:
+
+```bash
+# Linux/Mac
+./release.sh patch "feat: adiciona nova skill ao catálogo"
+
+# Windows
+release.bat patch "feat: adiciona nova skill ao catálogo"
+```
+
+Os dois fazem a mesma coisa: commitam o que estiver pendente (se houver),
+sobem a versão (`patch`/`minor`/`major`, padrão `patch`), e enviam
+commit + tag pro GitHub — o que dispara `.github/workflows/npm-publish.yml`
+sozinho, sem precisar de token nem publicar na mão.
+
 ## Publicando no npm (uma vez, e a cada atualização)
 
 1. Ter conta no [npmjs.com](https://www.npmjs.com/signup) e criar o
