@@ -1,0 +1,17 @@
+{
+  "name": "claude-init",
+  "owner": {
+    "name": "Connsoft"
+  },
+  "metadata": {
+    "description": "Marketplace com o plugin claude-init — scaffolder de setup Claude Code (orchestrator, agentes por camada, SDD, hooks) pra qualquer stack."
+  },
+  "plugins": [
+    {
+      "name": "claude-init",
+      "source": "./",
+      "description": "Scaffolder de estrutura Claude Code para qualquer stack — gera orchestrator, agentes por camada, specs SDD e hooks de segurança.",
+      "version": "1.0.0"
+    }
+  ]
+}

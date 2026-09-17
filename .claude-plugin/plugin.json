@@ -1,0 +1,10 @@
+{
+  "name": "claude-init",
+  "description": "Scaffolder de estrutura Claude Code (orchestrator arquiteto, agentes por camada detectados pela stack, Spec-Driven Development, hooks de segurança) para qualquer stack, monorepo ou não.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Connsoft"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/valdirjunior10/claude-setup-cli"
+}

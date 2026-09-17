@@ -1,0 +1,39 @@
+{
+  "name": "@connsoft-tech/claude-init",
+  "version": "1.0.1",
+  "description": "Scaffolder de estrutura Claude Code (orchestrator, agentes por camada, Spec-Driven Development, hooks de segurança) para qualquer stack, monorepo ou não.",
+  "bin": {
+    "claude-init": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "commands",
+    ".claude-plugin"
+  ],
+  "type": "commonjs",
+  "dependencies": {
+    "prompts": "^2.4.2",
+    "fs-extra": "^11.2.0"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT",
+  "author": "Connsoft",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "scaffolder",
+    "cli",
+    "spec-driven-development"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/valdirjunior10/claude-setup-cli.git"
+  },
+  "homepage": "https://github.com/valdirjunior10/claude-setup-cli",
+  "publishConfig": {
+    "access": "public"
+  }
+}
