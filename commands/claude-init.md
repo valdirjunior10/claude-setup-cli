@@ -27,9 +27,11 @@ pulou e siga para o próximo.
     (sim/não, padrão sim)
 12. Adicionar hooks de segurança (bloqueia push forçado, push direto na
     branch de release, migration sem rollback)? (sim/não, padrão sim)
-13. Ao finalizar uma implementação aprovada pelo reviewer, o orchestrator
+13. Instalar o MCP do Playwright por padrão (.mcp.json)? (sim/não,
+    padrão sim)
+14. Ao finalizar uma implementação aprovada pelo reviewer, o orchestrator
     deve: fazer merge direto, ou abrir Pull Request e parar?
-14. O que mais gerar: subagentes, regras, slash commands, esqueleto de
+15. O que mais gerar: subagentes, regras, slash commands, esqueleto de
     docs/architecture — pode marcar todos por padrão
 
 ## 2. Detecção de agentes por camada
@@ -104,6 +106,19 @@ e escreva em `.claude/settings.json`:
   faça merge dos campos acima nele (nunca sobrescreva campos que já
   existem lá — avise o usuário se houver conflito, ex: `defaultMode` já
   definido como outra coisa).
+
+## 5.5. MCP do Playwright (.mcp.json)
+
+Se a resposta 13 for sim: leia `.mcp.json` na raiz se já existir (senão
+comece de `{"mcpServers": {}}`). Se já tiver uma chave `playwright`,
+avise e pule. Senão, adicione:
+
+```json
+"playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] }
+```
+
+dentro de `mcpServers`, preservando qualquer outro servidor MCP que já
+esteja configurado ali, e escreva o arquivo de volta.
 
 ## 6. Skills complementares
 

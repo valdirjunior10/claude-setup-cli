@@ -91,20 +91,23 @@ pergunta/lógica em `bin/cli.js` deve ser refletida em
    gera `.claude/settings.json` com `defaultMode: "plan"`
 12. **Adicionar hooks de segurança?** — bloqueia push forçado, push
     direto na branch de release, e migration sem rollback
-13. **Ao finalizar, o orchestrator deve fazer merge direto ou abrir PR?**
-14. **O que mais deseja gerar?** — subagentes, regras, slash commands,
+13. **Instalar o MCP do Playwright por padrão?** — gera/atualiza
+    `.mcp.json` na raiz (merge seguro se o arquivo já existir)
+14. **Ao finalizar, o orchestrator deve fazer merge direto ou abrir PR?**
+15. **O que mais deseja gerar?** — subagentes, regras, slash commands,
     esqueleto de docs/architecture (todos marcados por padrão)
-15. *(se detectar backend com convenção conhecida, ex: Laravel, e for
+16. *(se detectar backend com convenção conhecida, ex: Laravel, e for
     monorepo com mais de um app)* — qual pasta é o backend
-16. *(mesma condição)* — gerar `CLAUDE.md` por camada
+17. *(mesma condição)* — gerar `CLAUDE.md` por camada
     (models/controllers/services/repositories)?
-17. *(ao final)* — quais skills complementares populares instalar
+18. *(ao final)* — quais skills complementares populares instalar
     (a lista muda conforme a stack detectada — ver seção abaixo)
 
 ## O que é gerado
 
 ```
 CLAUDE.md
+.mcp.json                           (se MCP do Playwright confirmado; merge seguro)
 .claude/settings.json               (se Plan Mode e/ou hooks confirmados)
 .claude/hooks/guard-git-safety.sh          (se hooks confirmados)
 .claude/hooks/guard-migration-rollback.sh  (se hooks confirmados e detectou db-migrator)

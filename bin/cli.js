@@ -417,7 +417,7 @@ async function main() {
         type: "confirm",
         name: "isMonorepo",
         message: "É um monorepo com múltiplos apps/pacotes?",
-        initial: projectCtx.suggestedMonorepo !== null ? projectCtx.suggestedMonorepo : true,
+        initial: projectCtx.suggestedMonorepo !== null ? projectCtx.suggestedMonorepo : false,
       },
       {
         type: (prev) => (prev ? "list" : null),
@@ -477,6 +477,12 @@ async function main() {
         type: "confirm",
         name: "addHooks",
         message: "Adicionar hooks de segurança (bloqueia push forçado, bloqueia push direto na branch de release, bloqueia migration sem rollback)?",
+        initial: true,
+      },
+      {
+        type: "confirm",
+        name: "addPlaywrightMcp",
+        message: "Instalar o MCP do Playwright por padrão neste projeto (.mcp.json — automação de browser pra QA/testes)?",
         initial: true,
       },
       {
@@ -601,6 +607,36 @@ async function main() {
 
   // 1. CLAUDE.md raiz
   await writeFromTemplate("CLAUDE.root.md.tpl", path.join(CWD, "CLAUDE.md"), data);
+
+  // 1.1 .mcp.json — Playwright MCP, com merge seguro se o arquivo já existir
+  if (answers.addPlaywrightMcp) {
+    const mcpPath = path.join(CWD, ".mcp.json");
+    let mcpObj = { mcpServers: {} };
+    let existed = false;
+    if (await fs.pathExists(mcpPath)) {
+      existed = true;
+      try {
+        mcpObj = JSON.parse(await fs.readFile(mcpPath, "utf8"));
+        if (!mcpObj.mcpServers) mcpObj.mcpServers = {};
+      } catch (_) {
+        console.log("  .mcp.json existente não é JSON válido — pulando (corrija manualmente).");
+        mcpObj = null;
+      }
+    }
+    if (mcpObj) {
+      if (mcpObj.mcpServers.playwright) {
+        console.log("  .mcp.json já tem 'playwright' configurado — pulando.");
+      } else {
+        mcpObj.mcpServers.playwright = {
+          command: "npx",
+          args: ["@playwright/mcp@latest"],
+        };
+        await fs.ensureDir(path.dirname(mcpPath));
+        await fs.writeFile(mcpPath, JSON.stringify(mcpObj, null, 2) + "\n", "utf8");
+        console.log(`  ${existed ? "atualizado" : "criado"}: .mcp.json`);
+      }
+    }
+  }
 
   // 1.5 CLAUDE.md por camada do backend (models/controllers/services/repositories)
   if (generateLayers && layerPaths) {
