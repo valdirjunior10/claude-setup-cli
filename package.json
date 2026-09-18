@@ -1,6 +1,6 @@
 {
   "name": "@connsoft-tech/claude-init",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Scaffolder de estrutura Claude Code (orchestrator, agentes por camada, Spec-Driven Development, hooks de segurança) para qualquer stack, monorepo ou não.",
   "bin": {
     "claude-init": "bin/cli.js"
