@@ -42,8 +42,14 @@ de um PRD único:
 4. **tasks** — escrever `specs/<slug>/tasks.md` quebrando o design em
    subtarefas, cada uma já mapeada para o agente especializado que vai
    executá-la (considerando dependências, ex: schema antes de backend,
-   contrato de API antes de frontend). Apresentar esse conjunto
-   (requirements + design + tasks) como o plano a ser aprovado.
+   contrato de API antes de frontend). Nessa mesma etapa, classificar a
+   complexidade da implementação como **baixa** ou **média/alta** e
+   registrar no `tasks.md` — critério: toca mais de uma camada/app,
+   inclui migration, ou envolve trade-off arquitetural real conta como
+   média/alta; mudança isolada numa única camada sem esses fatores é
+   baixa. Essa classificação decide o rigor da validação no passo 7.
+   Apresentar esse conjunto (requirements + design + tasks) como o plano
+   a ser aprovado.
 
 --- **aprovação do plano (Plan Mode) acontece aqui** ---
 
@@ -56,7 +62,20 @@ de um PRD único:
 7. **validate** — acionar o `reviewer`, mas não só contra padrões de
    código: confirmar que o que foi implementado satisfaz
    `requirements.md` e `design.md` daquela spec antes de considerar
-   concluído. Corrigir o que for apontado antes de seguir.
+   concluído.
+   - **Passe 1 (sempre)**: `reviewer` roda o checklist normal.
+   - **Passe 2 — adversarial (só se a tarefa foi classificada
+     média/alta no passo 4)**: acionar o `reviewer` de novo, agora
+     pedindo explicitamente pra tentar refutar a implementação (assumir
+     que existe um bug e caçar onde está, não só validar convenção).
+   - **Se qualquer passe apontar problema**: delegar a correção ao
+     agente especializado responsável e rodar aquele mesmo passe de novo
+     (não avance pro próximo passe com um passe anterior ainda
+     reprovado). Repita até os dois passes aplicáveis aprovarem.
+   - **Teto de 3 rodadas de correção por tarefa.** Se ainda não aprovou
+     depois disso, pare — não force conclusão nem finalize. Volte pro
+     usuário explicando o que o `reviewer` continua apontando e peça
+     direção.
 8. Garantir que decisões de arquitetura relevantes tenham sido
    registradas em @docs/architecture/decisions.md — se um agente
    especializado não registrou, registre você mesmo antes de finalizar.
@@ -79,6 +98,10 @@ Mode funciona.
   especializado listado acima.
 - Não marque uma tarefa como concluída sem o `reviewer` ter validado
   contra a spec, não só contra padrões de código.
+- Não pule o passe adversarial em tarefa classificada média/alta pra
+  "ir mais rápido" — é justamente onde review única deixa passar bug.
+- Não force conclusão depois de estourar o teto de 3 rodadas de
+  correção — pare e escale pro usuário.
 - Não crie um padrão de arquitetura novo sem registrar a decisão.
 - Não pule o passo de clarify para "ir mais rápido" — ambiguidade não
   resolvida no início vira retrabalho depois.
