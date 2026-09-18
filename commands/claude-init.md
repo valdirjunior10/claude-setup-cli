@@ -10,11 +10,36 @@ arquivo final, substituindo os placeholders `{{NOME}}` pelas respostas
 abaixo. **Nunca sobrescreva um arquivo que já existe** — avise que
 pulou e siga para o próximo.
 
-## 1. Perguntas (uma de cada vez, nesta ordem)
+## 0. Detecção de projeto existente (antes de perguntar nada)
+
+Olhe o diretório atual: se tiver qualquer arquivo/pasta além de `.git` e
+`node_modules` (ou já achar `package.json`, `composer.json`,
+`requirements.txt`/`pyproject.toml`, `go.mod`), trate como **projeto
+existente**. Avise o que detectou (ex: "package.json com React", "composer.json
+com laravel/framework", "docker-compose.yml com PostgreSQL") antes de seguir.
+
+Isso muda o roteiro das perguntas 1, 3, 4, 5, 6 e 7 abaixo:
+
+- **Projeto existente**: pule as perguntas 1 (nome — use o nome da pasta
+  atual), 4, 5, 6 e 7 (linguagem, banco, mensageria, deploy). Ainda
+  pergunte a 2 (monorepo?):
+  - Se **sim**: em vez da pergunta 3 (lista de apps), peça o **caminho do
+    backend** e o **caminho do frontend** (relativos à raiz do projeto —
+    não presuma `apps/<nome>`, pode ser qualquer pasta). Rode a mesma
+    detecção de stack (manifests de cada linguagem, `docker-compose.yml`,
+    etc.) dentro de cada uma dessas pastas pra preencher
+    linguagem/banco/mensageria automaticamente — sem perguntar.
+  - Se **não**: rode a detecção de stack na raiz do projeto e preencha
+    linguagem/banco/mensageria automaticamente, sem perguntar.
+- **Projeto novo** (pasta vazia, nenhum manifesto reconhecido): siga o
+  roteiro original abaixo, perguntando tudo normalmente.
+
+## 1. Perguntas (uma de cada vez, nesta ordem — pulando o que o passo 0 já resolveu)
 
 1. Nome do projeto/produto (padrão: nome da pasta atual)
 2. É um monorepo com múltiplos apps/pacotes? (sim/não)
-3. Se sim: liste os apps/pacotes separados por vírgula
+3. Se sim: liste os apps/pacotes separados por vírgula (projeto novo) OU
+   caminho do backend + caminho do frontend (projeto existente — ver passo 0)
 4. Linguagem/framework principal (texto livre)
 5. Banco de dados e padrão de arquitetura (texto livre)
 6. Mensageria/filas, se houver (pode ficar em branco)
@@ -129,7 +154,10 @@ Pergunte por último quais instalar, seguindo a mesma lógica de stack:
   detectou frontend no passo 2
 
 Para cada uma escolhida, rode: `npx --yes skills add <repo> --skill
-<skill>`. Se falhar (rede/npm), avise e mostre o comando manual — não
+<skill> --agent claude-code -y` (`--agent claude-code` fixa sempre Claude
+Code como alvo, sem perguntar/depender de detecção de outro agente
+instalado na máquina; `-y` evita prompt de confirmação da própria
+`skills`). Se falhar (rede/npm), avise e mostre o comando manual — não
 trave o resto do fluxo por isso.
 
 ## 7. Automação de versionamento

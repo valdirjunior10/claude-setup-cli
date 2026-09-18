@@ -236,6 +236,7 @@ async function detectProjectContext(cwd) {
     signals: [],
     suggestedLanguage: null,
     suggestedDatabase: null,
+    suggestedMessaging: null,
     suggestedMonorepo: null,
     suggestedApps: [],
     suggestedDevBranch: null,
@@ -336,8 +337,15 @@ async function detectProjectContext(cwd) {
         ctx.suggestedDatabase = dbFound.join(" e ");
         ctx.signals.push(`docker-compose.yml com ${dbFound.join(", ")}`);
       }
-      if (compose.includes("rabbitmq")) {
-        ctx.signals.push("docker-compose.yml com RabbitMQ");
+      const msgFound = [];
+      if (compose.includes("rabbitmq")) msgFound.push("RabbitMQ");
+      if (compose.includes("kafka")) msgFound.push("Kafka");
+      if (compose.includes("redis")) msgFound.push("Redis");
+      if (compose.includes("nats")) msgFound.push("NATS");
+      if (compose.includes("activemq")) msgFound.push("ActiveMQ");
+      if (msgFound.length) {
+        ctx.suggestedMessaging = msgFound.join(" e ");
+        ctx.signals.push(`docker-compose.yml com ${msgFound.join(", ")}`);
       }
     } catch (_) {
       /* docker-compose.yml ilegível — ignora */
@@ -383,6 +391,18 @@ async function detectProjectContext(cwd) {
   return ctx;
 }
 
+// Tenta achar uma pasta existente entre nomes comuns (backend/frontend),
+// só pra sugerir um default nas perguntas — usuário confirma ou corrige.
+async function guessDir(cwd, candidates) {
+  for (const c of candidates) {
+    if (await fs.pathExists(path.join(cwd, c))) return c;
+  }
+  return "";
+}
+
+const BACKEND_DIR_CANDIDATES = ["backend", "api", "server"];
+const FRONTEND_DIR_CANDIDATES = ["frontend", "web", "client", "app"];
+
 async function main() {
   console.log("\n=== claude-init — setup de ambiente Claude Code ===\n");
 
@@ -405,10 +425,15 @@ async function main() {
     console.log("Nenhum sinal de projeto existente — tratando como projeto novo.\n");
   }
 
+  // Projeto existente: nome/stacks/pacotes/deploy são detectados
+  // automaticamente (ou perguntados via monorepo abaixo) em vez de
+  // perguntados — só o essencial é perguntado de novo.
+  const skipForExisting = projectCtx.isExisting;
+
   const answers = await prompts(
     [
       {
-        type: "text",
+        type: skipForExisting ? null : "text",
         name: "projectName",
         message: "Nome do projeto/produto",
         initial: path.basename(CWD),
@@ -420,7 +445,7 @@ async function main() {
         initial: projectCtx.suggestedMonorepo !== null ? projectCtx.suggestedMonorepo : false,
       },
       {
-        type: (prev) => (prev ? "list" : null),
+        type: (prev) => (prev && !skipForExisting ? "list" : null),
         name: "apps",
         message:
           "Liste os apps/pacotes separados por vírgula (ex: api, web, worker)",
@@ -428,24 +453,24 @@ async function main() {
         initial: projectCtx.suggestedApps.length ? projectCtx.suggestedApps.join(", ") : "",
       },
       {
-        type: "text",
+        type: skipForExisting ? null : "text",
         name: "language",
         message: "Linguagem/framework principal (ex: Laravel/PHP, Go, .NET)",
         initial: projectCtx.suggestedLanguage || "",
       },
       {
-        type: "text",
+        type: skipForExisting ? null : "text",
         name: "database",
         message: "Banco de dados e padrão de arquitetura (ex: PostgreSQL multi-tenant)",
         initial: projectCtx.suggestedDatabase || "",
       },
       {
-        type: "text",
+        type: skipForExisting ? null : "text",
         name: "messaging",
         message: "Mensageria/filas, se houver (ex: RabbitMQ) — deixe em branco se não usar",
       },
       {
-        type: "text",
+        type: skipForExisting ? null : "text",
         name: "deploy",
         message: "Como é feito o deploy (ex: Dokploy/Docker self-hosted)",
       },
@@ -520,6 +545,94 @@ async function main() {
     }
   );
 
+  // Caminho relativo (a partir de CWD) de cada app — por padrão "apps/<nome>"
+  // (convenção histórica do gerador), mas pra monorepo de projeto existente
+  // usamos o caminho real informado pelo usuário (backend/frontend podem
+  // estar em qualquer lugar, não só dentro de apps/).
+  const appRelPaths = {};
+  let presetBackendAppFolder = null;
+
+  if (skipForExisting) {
+    answers.projectName = path.basename(CWD);
+    answers.deploy = "";
+
+    if (answers.isMonorepo) {
+      const backendGuess =
+        (await guessDir(CWD, BACKEND_DIR_CANDIDATES)) ||
+        projectCtx.suggestedApps.find((a) => /back|api|server/i.test(a)) ||
+        "";
+      const frontendGuess =
+        (await guessDir(CWD, FRONTEND_DIR_CANDIDATES)) ||
+        projectCtx.suggestedApps.find((a) => /front|web|client|app/i.test(a)) ||
+        "";
+
+      const pathAnswers = await prompts(
+        [
+          {
+            type: "text",
+            name: "backendPath",
+            message: "Caminho da pasta do backend (relativo à raiz do projeto)",
+            initial: backendGuess,
+          },
+          {
+            type: "text",
+            name: "frontendPath",
+            message: "Caminho da pasta do frontend (relativo à raiz do projeto)",
+            initial: frontendGuess,
+          },
+        ],
+        {
+          onCancel: () => {
+            console.log("\nCancelado.");
+            process.exit(1);
+          },
+        }
+      );
+
+      const backendRel = pathAnswers.backendPath.trim();
+      const frontendRel = pathAnswers.frontendPath.trim();
+      const backendName = path.basename(backendRel) || "backend";
+      const frontendName = path.basename(frontendRel) || "frontend";
+
+      const backendCtx = backendRel
+        ? await detectProjectContext(path.join(CWD, backendRel))
+        : null;
+      const frontendCtx = frontendRel
+        ? await detectProjectContext(path.join(CWD, frontendRel))
+        : null;
+
+      if (backendCtx) {
+        appRelPaths[backendName] = backendRel;
+        console.log(`\nStack detectada em ${backendRel}:`);
+        for (const s of backendCtx.signals) console.log(`  - ${s}`);
+      }
+      if (frontendCtx) {
+        appRelPaths[frontendName] = frontendRel;
+        console.log(`\nStack detectada em ${frontendRel}:`);
+        for (const s of frontendCtx.signals) console.log(`  - ${s}`);
+      }
+
+      answers.apps = [
+        backendRel ? backendName : null,
+        frontendRel ? frontendName : null,
+      ].filter(Boolean);
+      answers.language = [
+        backendCtx && backendCtx.suggestedLanguage,
+        frontendCtx && frontendCtx.suggestedLanguage,
+      ]
+        .filter(Boolean)
+        .join(" e ");
+      answers.database = (backendCtx && backendCtx.suggestedDatabase) || (frontendCtx && frontendCtx.suggestedDatabase) || "";
+      answers.messaging = (backendCtx && backendCtx.suggestedMessaging) || (frontendCtx && frontendCtx.suggestedMessaging) || "";
+      presetBackendAppFolder = backendRel ? backendName : null;
+    } else {
+      answers.apps = [];
+      answers.language = projectCtx.suggestedLanguage || "";
+      answers.database = projectCtx.suggestedDatabase || "";
+      answers.messaging = projectCtx.suggestedMessaging || "";
+    }
+  }
+
   const apps =
     answers.apps && answers.apps.length
       ? answers.apps.map((a) => a.trim()).filter(Boolean)
@@ -533,13 +646,13 @@ async function main() {
 
   // backendAppFolder === null significa "raiz do repo" (projeto não é
   // monorepo, ou é monorepo mas só tem um app informado como app único).
-  let backendAppFolder = null;
+  let backendAppFolder = presetBackendAppFolder;
   let generateLayers = false;
   let layerPaths = null;
   let layersSectionText = "";
 
   if (backendFramework && answers.extras.includes("agents")) {
-    if (answers.isMonorepo && apps.length > 1) {
+    if (!backendAppFolder && answers.isMonorepo && apps.length > 1) {
       const sel = await prompts(
         {
           type: "select",
@@ -640,7 +753,9 @@ async function main() {
 
   // 1.5 CLAUDE.md por camada do backend (models/controllers/services/repositories)
   if (generateLayers && layerPaths) {
-    const baseDir = backendAppFolder ? path.join(CWD, "apps", backendAppFolder) : CWD;
+    const baseDir = backendAppFolder
+      ? path.join(CWD, appRelPaths[backendAppFolder] || path.join("apps", backendAppFolder))
+      : CWD;
     for (const [layerKey, relPath] of Object.entries(layerPaths)) {
       await writeFromTemplate(
         ".claude/layer/CLAUDE.layer.md.tpl",
@@ -864,7 +979,7 @@ async function main() {
     for (const app of apps) {
       await writeFromTemplate(
         "app/CLAUDE.app.md.tpl",
-        path.join(CWD, "apps", app, "CLAUDE.md"),
+        path.join(CWD, appRelPaths[app] || path.join("apps", app), "CLAUDE.md"),
         {
           ...data,
           APP_NAME: app,
@@ -903,9 +1018,12 @@ async function main() {
 
       for (const skillId of skillsToInstall || []) {
         const skillDef = applicableSkills.find((s) => s.id === skillId);
+        // --agent claude-code fixa o alvo (por padrão é sempre Claude Code
+        // aqui, nunca outro agente); -y evita prompt interativo de confirmação.
+        const skillsCmd = `npx --yes skills add ${skillDef.repo} --skill ${skillDef.skill} --agent claude-code -y`;
         console.log(`\nInstalando ${skillId} via npx skills...\n`);
         try {
-          execSync(`npx --yes skills add ${skillDef.repo} --skill ${skillDef.skill}`, {
+          execSync(skillsCmd, {
             cwd: CWD,
             stdio: "inherit",
           });
@@ -914,7 +1032,7 @@ async function main() {
           console.log(
             `\nNão foi possível instalar ${skillId} automaticamente (verifique sua conexão/npm). ` +
               `Para instalar manualmente depois, rode:\n` +
-              `  npx skills add ${skillDef.repo} --skill ${skillDef.skill}\n`
+              `  ${skillsCmd}\n`
           );
         }
       }

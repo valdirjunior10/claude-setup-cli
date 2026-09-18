@@ -73,15 +73,38 @@ executar `bin/cli.js`. Mantenha os dois em paridade: qualquer mudança de
 pergunta/lógica em `bin/cli.js` deve ser refletida em
 `commands/claude-init.md`.
 
+## Projeto existente vs projeto novo
+
+Antes de perguntar qualquer coisa, o CLI olha o diretório atual. Se achar
+sinais de projeto existente (pasta não vazia, `package.json`,
+`composer.json`, `requirements.txt`/`pyproject.toml`, `go.mod`, etc.), ele:
+
+- **pula** as perguntas de nome, linguagem/framework, banco, mensageria e
+  deploy — usa o nome da pasta e detecta a stack automaticamente;
+- ainda pergunta se é monorepo:
+  - **sim** → pede o **caminho do backend** e o **caminho do frontend**
+    (podem ser qualquer pasta, não só `apps/<nome>`) e detecta a stack de
+    cada um separadamente;
+  - **não** → detecta a stack na raiz do projeto.
+
+Se a pasta estiver vazia/sem manifesto reconhecido, trata como projeto
+novo e faz todas as perguntas abaixo normalmente.
+
 ## Perguntas que o CLI faz
 
-1. **Nome do projeto/produto** — usado nos textos gerados
+1. **Nome do projeto/produto** — usado nos textos gerados *(pulada em
+   projeto existente)*
 2. **É um monorepo com múltiplos apps/pacotes?**
-3. **Liste os apps/pacotes** (só se respondeu sim acima) — ex: `api, web`
+3. **Liste os apps/pacotes** (projeto novo) **ou caminho do
+   backend/frontend** (projeto existente) — só se respondeu sim acima
 4. **Linguagem/framework principal** — texto livre, ex: `Laravel/PHP`
-5. **Banco de dados e padrão de arquitetura** — ex: `PostgreSQL multi-tenant`
-6. **Mensageria/filas**, se houver — pode deixar em branco
-7. **Como é feito o deploy** — ex: `Dokploy/Docker self-hosted`
+   *(pulada/auto-detectada em projeto existente)*
+5. **Banco de dados e padrão de arquitetura** — ex: `PostgreSQL
+   multi-tenant` *(pulada/auto-detectada em projeto existente)*
+6. **Mensageria/filas**, se houver — pode deixar em branco *(pulada/auto-detectada
+   em projeto existente)*
+7. **Como é feito o deploy** — ex: `Dokploy/Docker self-hosted` *(pulada
+   em projeto existente)*
 8. **Branch principal de desenvolvimento** — padrão `develop`
 9. **Branch que dispara o deploy em produção** — padrão `main` (onde a
    tag de release é criada)
@@ -128,8 +151,8 @@ specs/README.md
 .claude/commands/onboarding.md
 .claude/commands/versao.md          (se automação de versionamento confirmada)
 .github/workflows/auto-tag.yml      (se automação de versionamento confirmada)
-apps/<cada-app>/CLAUDE.md            (se monorepo)
-apps/<app-backend>/<pasta-da-camada>/CLAUDE.md   (se confirmado)
+apps/<cada-app>/CLAUDE.md            (se monorepo; em projeto existente, no caminho real informado pro backend/frontend em vez de apps/<nome>)
+apps/<app-backend>/<pasta-da-camada>/CLAUDE.md   (se confirmado; mesma regra de caminho acima)
 ```
 
 Campos marcados como `[definir]` devem ser revisados manualmente antes do
@@ -195,6 +218,9 @@ Hoje o catálogo é:
 - `terms` (sempre oferecida) — mantém glossário de domínio e ADRs.
 - `e2e-setup`, `code-quality` (só se detectar frontend JS/TS) — Playwright
   e baseline de lint/format.
+
+A instalação sempre usa `--agent claude-code` (nunca pergunta nem
+depende de detectar outro agente instalado na máquina, tipo Cursor).
 
 Para adicionar novas skills ao catálogo, edite `SKILL_CATALOG` em
 `bin/cli.js`.
