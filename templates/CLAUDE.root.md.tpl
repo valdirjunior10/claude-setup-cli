@@ -24,6 +24,8 @@ carregado automaticamente quando o Claude edita arquivos daquela pasta.
 - @.claude/rules/stack.md
 - @.claude/rules/convencoes.md
 - @.claude/rules/registro-decisoes.md
+- @.claude/rules/finalizacao.md
+- @.claude/rules/plano-e-autorizacao.md
 
 ## Fluxo de trabalho
 - Nova implementação: usar `/nova-implementacao`, que aciona o agente

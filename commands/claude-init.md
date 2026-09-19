@@ -179,7 +179,8 @@ Se a resposta 10 foi sim, gere `.claude/commands/versao.md.tpl` e
 Gere também (sempre, respeitando a pergunta 14 pra rules/commands/docs):
 `docs/architecture/README.md.tpl`, `visao-geral.md.tpl`,
 `decisions.md.tpl`, `specs/README.md.tpl`, `.claude/rules/stack.md.tpl`,
-`convencoes.md.tpl`, `registro-decisoes.md.tpl`,
+`convencoes.md.tpl`, `registro-decisoes.md.tpl`, `finalizacao.md.tpl`,
+`plano-e-autorizacao.md.tpl`,
 `.claude/commands/nova-implementacao.md.tpl`, `finalizar.md.tpl`,
 `registrar-decisao.md.tpl`, `diagrama.md.tpl`, `onboarding.md.tpl`, e
 `CLAUDE.md` raiz — todos vêm de `${CLAUDE_PLUGIN_ROOT}/templates/`, no

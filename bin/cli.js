@@ -806,6 +806,16 @@ async function main() {
       path.join(CWD, ".claude", "rules", "registro-decisoes.md"),
       data
     );
+    await writeFromTemplate(
+      ".claude/rules/finalizacao.md.tpl",
+      path.join(CWD, ".claude", "rules", "finalizacao.md"),
+      data
+    );
+    await writeFromTemplate(
+      ".claude/rules/plano-e-autorizacao.md.tpl",
+      path.join(CWD, ".claude", "rules", "plano-e-autorizacao.md"),
+      data
+    );
   }
 
   // 4. agents — detecta camadas pela stack informada; se nada bater,

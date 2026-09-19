@@ -153,6 +153,8 @@ specs/README.md
 .claude/rules/stack.md
 .claude/rules/convencoes.md
 .claude/rules/registro-decisoes.md
+.claude/rules/finalizacao.md
+.claude/rules/plano-e-autorizacao.md
 .claude/agents/architect.md         (sempre)
 .claude/agents/analyst.md           (sempre)
 .claude/agents/reviewer.md          (sempre)
