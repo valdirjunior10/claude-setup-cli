@@ -1,6 +1,8 @@
 ---
 name: reviewer
 description: Revisa código já implementado contra o CLAUDE.md do pacote, as regras em .claude/rules/ e a arquitetura documentada. Use antes de abrir PR ou finalizar uma tarefa.
+model: sonnet
+effort: xhigh
 ---
 
 Você revisa mudanças de código neste repositório ({{PROJECT_NAME}}).

@@ -1,6 +1,8 @@
 ---
 name: db-migrator
 description: Cria e revisa migrations e mudanças de schema no banco de dados. Use sempre que uma tarefa envolver alteração de tabelas, índices ou estrutura de dados.
+model: sonnet
+effort: xhigh
 ---
 
 Você cuida de schema e migrations do banco de dados em {{PROJECT_NAME}}.

@@ -1,6 +1,8 @@
 ---
 name: queue-worker
 description: Implementa publishers, consumers e contratos de eventos de fila. Use para tarefas envolvendo mensageria assíncrona.
+model: sonnet
+effort: xhigh
 ---
 
 Você implementa integrações de mensageria em {{PROJECT_NAME}}.

@@ -1,5 +1,5 @@
 ---
-description: Gera a estrutura Claude Code (orchestrator, agentes por camada, SDD, hooks) neste projeto, conversacionalmente — equivalente ao CLI `claude-init` pra quem não tem Node
+description: Gera a estrutura Claude Code (architect, analyst, agentes por camada, SDD, hooks) neste projeto, conversacionalmente — equivalente ao CLI `claude-init` pra quem não tem Node
 ---
 
 Você vai reproduzir exatamente o que o CLI Node deste mesmo pacote faz
@@ -54,7 +54,7 @@ Isso muda o roteiro das perguntas 1, 3, 4, 5, 6 e 7 abaixo:
     branch de release, migration sem rollback)? (sim/não, padrão sim)
 13. Instalar o MCP do Playwright por padrão (.mcp.json)? (sim/não,
     padrão sim)
-14. Ao finalizar uma implementação aprovada pelo reviewer, o orchestrator
+14. Ao finalizar uma implementação aprovada pelo reviewer, o architect
     deve: fazer merge direto, ou abrir Pull Request e parar?
 15. O que mais gerar: subagentes, regras, slash commands, esqueleto de
     docs/architecture — pode marcar todos por padrão
@@ -77,8 +77,16 @@ Gere um agente (a partir do template correspondente em
 `.claude/agents/<nome>-implementer.md.tpl` ou `queue-worker.md.tpl`) pra
 cada categoria que bateu. Se nenhuma bateu, gere
 `.claude/agents/implementer.md.tpl` genérico. `reviewer.md.tpl` é sempre
-gerado. Por fim, gere `orchestrator.md.tpl`, preenchendo `{{AGENTS_LIST}}`
-com a lista dos agentes gerados (`- \`nome\` — descrição`).
+gerado. Depois gere `analyst.md.tpl` (sempre), preenchendo
+`{{AGENTS_LIST}}` com a lista dos agentes gerados até aqui
+(`- \`nome\` — descrição`). Por fim, gere `architect.md.tpl` (sempre),
+preenchendo `{{AGENTS_LIST}}` com a mesma lista, acrescida do `analyst`
+no início (`- \`analyst\` — análise da demanda (requirements.md) e plano
+de ação (tasks.md)`).
+
+Os templates já trazem `model` e `effort` no frontmatter — copie sem
+alterar: `architect` e `analyst` usam `model: opus` + `effort: xhigh`; os
+demais agentes usam `model: sonnet` + `effort: xhigh`.
 
 ## 3. Convenção de camadas do backend (models/controllers/services/repositories)
 
@@ -99,7 +107,7 @@ links `@<caminho>/CLAUDE.md` pra cada camada gerada.
 ## 4. Finalização (merge vs PR)
 
 Preencha `{{FINALIZE_TITLE}}`, `{{FINALIZE_BODY}}` e
-`{{FINALIZE_AVOID_LINE}}` no `orchestrator.md.tpl`, e `{{FINALIZE_STEPS}}`
+`{{FINALIZE_AVOID_LINE}}` no `architect.md.tpl`, e `{{FINALIZE_STEPS}}`
 no `finalizar.md.tpl`, conforme a resposta da pergunta 13 — merge direto
 (`git checkout {{DEV_BRANCH}}` → `pull` → `merge --no-ff` → `push` →
 apagar branch) ou PR (`git push -u origin feature/<slug>` → `gh pr create

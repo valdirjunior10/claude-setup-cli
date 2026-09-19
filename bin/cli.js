@@ -176,7 +176,7 @@ function getApplicableSkills(detectedAgents) {
 }
 
 // Texto do passo final (commit + merge OU commit + PR), conforme escolha
-// do dev. Usado tanto no orchestrator quanto no /finalizar.
+// do dev. Usado tanto no architect quanto no /finalizar.
 function buildFinalizeBlock(mergeStrategy, devBranch) {
   if (mergeStrategy === "pr") {
     return {
@@ -513,7 +513,7 @@ async function main() {
       {
         type: "select",
         name: "mergeStrategy",
-        message: "Ao finalizar uma implementação aprovada pelo reviewer, o orchestrator deve:",
+        message: "Ao finalizar uma implementação aprovada pelo reviewer, o architect deve:",
         choices: [
           {
             title: "Fazer merge direto na branch de desenvolvimento (sem revisão humana)",
@@ -840,17 +840,29 @@ async function main() {
       desc: "revisão de código e conformidade com os padrões, antes de finalizar qualquer tarefa",
     });
 
-    // orquestrador — sempre gerado, com a lista de agentes acima já preenchida
-    const agentsList = agentListEntries
-      .map((e) => `- \`${e.name}\` — ${e.desc}`)
-      .join("\n");
+    const formatAgentsList = (entries) =>
+      entries.map((e) => `- \`${e.name}\` — ${e.desc}`).join("\n");
+
+    // analista de sistemas — sempre gerado; analisa a demanda e monta o plano
+    // de ação, mapeando subtarefas só para os agentes acima
+    await writeFromTemplate(
+      ".claude/agents/analyst.md.tpl",
+      path.join(CWD, ".claude", "agents", "analyst.md"),
+      { ...data, AGENTS_LIST: formatAgentsList(agentListEntries) }
+    );
+    agentListEntries.unshift({
+      name: "analyst",
+      desc: "análise da demanda (requirements.md) e plano de ação (tasks.md)",
+    });
+
+    // arquiteto — sempre gerado, com a lista de agentes acima já preenchida
     const finalizeBlock = buildFinalizeBlock(answers.mergeStrategy, data.DEV_BRANCH);
     await writeFromTemplate(
-      ".claude/agents/orchestrator.md.tpl",
-      path.join(CWD, ".claude", "agents", "orchestrator.md"),
+      ".claude/agents/architect.md.tpl",
+      path.join(CWD, ".claude", "agents", "architect.md"),
       {
         ...data,
-        AGENTS_LIST: agentsList,
+        AGENTS_LIST: formatAgentsList(agentListEntries),
         FINALIZE_TITLE: finalizeBlock.title,
         FINALIZE_BODY: finalizeBlock.body,
         FINALIZE_AVOID_LINE: finalizeBlock.avoidLine,

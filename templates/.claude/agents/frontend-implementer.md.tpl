@@ -1,6 +1,8 @@
 ---
 name: frontend-implementer
 description: Implementa componentes, telas e integrações de frontend neste repositório. Use para qualquer tarefa de UI, estado ou consumo de API do lado do cliente.
+model: sonnet
+effort: xhigh
 ---
 
 Você implementa código de frontend em {{PROJECT_NAME}}.

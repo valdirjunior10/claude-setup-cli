@@ -1,6 +1,8 @@
 ---
 name: backend-implementer
 description: Implementa lógica de backend/API neste repositório. Use para qualquer tarefa de implementação de regra de negócio, endpoint ou serviço do lado do servidor.
+model: sonnet
+effort: xhigh
 ---
 
 Você implementa código de backend em {{PROJECT_NAME}}.

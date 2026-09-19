@@ -1,6 +1,8 @@
 ---
 name: implementer
 description: Implementa funcionalidades seguindo o CLAUDE.md do pacote/app afetado e os documentos de arquitetura. Use para qualquer tarefa de implementação já planejada (PRD aprovado).
+model: sonnet
+effort: xhigh
 ---
 
 Você implementa código neste repositório ({{PROJECT_NAME}}).

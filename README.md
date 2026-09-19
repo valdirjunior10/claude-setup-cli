@@ -5,10 +5,22 @@ Scaffolder de estrutura Claude Code (CLAUDE.md em camadas, `.claude/rules`,
 qualquer stack — não depende de Node no projeto alvo, é só a ferramenta
 de geração.
 
-Gera um `orchestrator` (arquiteto de software do projeto) que conduz o
+Gera um `architect` (arquiteto de software do projeto) que conduz o
 fluxo de spec-driven development (specify → clarify → plan → tasks →
 implement → validate), delega pra agentes especializados detectados pela
-sua stack, e finaliza com merge ou Pull Request — sua escolha.
+sua stack, e finaliza com merge ou Pull Request — sua escolha. Um
+`analyst` (analista de sistemas) analisa cada demanda recebida e monta o
+plano de ação (`requirements.md` e `tasks.md`) que o `architect` revisa e
+leva pra aprovação.
+
+Modelos padrão dos agentes gerados (campos `model` e `effort` no
+frontmatter de cada `.claude/agents/*.md` — edite o arquivo gerado pra
+mudar):
+
+| Agente | Modelo | Effort |
+|--------|--------|--------|
+| `architect`, `analyst` | `opus` | `xhigh` |
+| demais (`reviewer`, `*-implementer`, `db-migrator`, `queue-worker`, `implementer`) | `sonnet` | `xhigh` |
 
 ## Pré-requisitos
 
@@ -116,7 +128,7 @@ novo e faz todas as perguntas abaixo normalmente.
     direto na branch de release, e migration sem rollback
 13. **Instalar o MCP do Playwright por padrão?** — gera/atualiza
     `.mcp.json` na raiz (merge seguro se o arquivo já existir)
-14. **Ao finalizar, o orchestrator deve fazer merge direto ou abrir PR?**
+14. **Ao finalizar, o architect deve fazer merge direto ou abrir PR?**
 15. **O que mais deseja gerar?** — subagentes, regras, slash commands,
     esqueleto de docs/architecture (todos marcados por padrão)
 16. *(se detectar backend com convenção conhecida, ex: Laravel, e for
@@ -141,7 +153,8 @@ specs/README.md
 .claude/rules/stack.md
 .claude/rules/convencoes.md
 .claude/rules/registro-decisoes.md
-.claude/agents/orchestrator.md      (sempre)
+.claude/agents/architect.md         (sempre)
+.claude/agents/analyst.md           (sempre)
 .claude/agents/reviewer.md          (sempre)
 .claude/agents/<camada>-implementer.md   (conforme stack detectada)
 .claude/commands/nova-implementacao.md
@@ -213,7 +226,7 @@ as que fazem sentido pra stack detectada **naquele projeto específico**
 
 Hoje o catálogo é:
 - `grill-me` (sempre oferecida) — interroga uma pergunta por vez antes de
-  travar um plano/design; o `orchestrator` já usa no passo de clarify
+  travar um plano/design; o `architect` já usa no passo de clarify
   quando presente.
 - `terms` (sempre oferecida) — mantém glossário de domínio e ADRs.
 - `e2e-setup`, `code-quality` (só se detectar frontend JS/TS) — Playwright
