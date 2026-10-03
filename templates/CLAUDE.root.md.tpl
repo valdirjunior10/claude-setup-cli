@@ -30,9 +30,8 @@ carregado automaticamente quando o Claude edita arquivos daquela pasta.
 ## Fluxo de trabalho
 - Nova implementação: usar `/nova-implementacao`, que aciona o agente
   `architect` — ele conduz o fluxo spec-driven (specify → clarify →
-  plan → tasks → implement → validate), aciona o `analyst` para analisar
-  a demanda e montar o plano de ação, e delega para os agentes
-  especializados corretos.
+  plan → tasks → implement → validate), analisa a demanda, monta o plano
+  de ação e delega para os agentes especializados corretos.
 - Specs de features ficam em `specs/<slug>/` (requirements.md, design.md,
   tasks.md) — ver @specs/README.md.
 

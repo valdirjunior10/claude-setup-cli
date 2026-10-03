@@ -16,18 +16,21 @@ juntos, na pasta da feature. O slug da pasta é o mesmo usado na branch
 (`feature/<slug>`).
 
 ## Fluxo (conduzido pelo agente `architect`)
-1. **specify** — `requirements.md`, escrito pelo `analyst`: contexto,
+1. **specify** — `requirements.md`, escrito pelo `architect`: contexto,
    requisitos, critério de conclusão.
 2. **clarify** — antes de seguir para o design, o `architect` confirma
    com o usuário qualquer ambiguidade encontrada nos requisitos.
 3. **plan** — `design.md`, escrito pelo `architect`: decisões técnicas,
    trade-offs, impacto em outras camadas/apps.
-4. **tasks** — `tasks.md`, o plano de ação montado pelo `analyst`: lista
+4. **tasks** — `tasks.md`, o plano de ação montado pelo `architect`: lista
    de subtarefas, cada uma já mapeada para o agente especializado que vai
-   executá-la.
+   executá-la, mais a classificação da tarefa (simples, comum ou
+   sensível).
 5. **implement** — delegação para os agentes especializados.
 6. **validate** — o `reviewer` confirma que a implementação satisfaz o
    que está em `requirements.md` e `design.md`, não só padrões de código.
+   Em tarefa sensível, o `adversarial-reviewer` tenta quebrar a
+   implementação depois disso.
 
 Specs concluídas não são apagadas — servem de histórico e documentação
 viva de por que a feature foi construída daquele jeito.

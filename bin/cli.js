@@ -190,9 +190,9 @@ function buildFinalizeBlock(mergeStrategy, devBranch) {
         `sozinho** — aguardar aprovação humana do PR antes de entrar em ${devBranch}.`,
       avoidLine: `Não faça merge de um PR sozinho — isso é decisão humana; sua responsabilidade termina em abrir o PR com o \`reviewer\` aprovado.`,
       finalizarSteps:
-        `5. Commit na branch atual com mensagem clara resumindo as mudanças.\n` +
-        `6. \`git push -u origin feature/<slug>\`.\n` +
-        `7. Abrir Pull Request pra \`${devBranch}\`: \`gh pr create --base ${devBranch} ` +
+        `6. Commit na branch atual com mensagem clara resumindo as mudanças.\n` +
+        `7. \`git push -u origin feature/<slug>\`.\n` +
+        `8. Abrir Pull Request pra \`${devBranch}\`: \`gh pr create --base ${devBranch} ` +
         `--title "<título>" --body "<resumo>"\`. Não fazer merge sozinho.`,
     };
   }
@@ -206,10 +206,10 @@ function buildFinalizeBlock(mergeStrategy, devBranch) {
       `\`feature/<slug>\` local após o merge (\`git branch -d\`).`,
     avoidLine: `Não faça merge em ${devBranch} sem o \`reviewer\` ter passado.`,
     finalizarSteps:
-      `5. Commit na branch atual com mensagem clara resumindo as mudanças.\n` +
-      `6. \`git checkout ${devBranch}\`, \`git pull\`, \`git merge --no-ff ` +
+      `6. Commit na branch atual com mensagem clara resumindo as mudanças.\n` +
+      `7. \`git checkout ${devBranch}\`, \`git pull\`, \`git merge --no-ff ` +
       `feature/<slug>\`, \`git push\`.\n` +
-      `7. Deletar a branch \`feature/<slug>\` local (\`git branch -d\`).`,
+      `8. Deletar a branch \`feature/<slug>\` local (\`git branch -d\`).`,
   };
 }
 
@@ -847,23 +847,22 @@ async function main() {
     );
     agentListEntries.push({
       name: "reviewer",
-      desc: "revisão de código e conformidade com os padrões, antes de finalizar qualquer tarefa",
+      desc: "revisão de código contra a spec e os padrões, antes de finalizar qualquer tarefa comum ou sensível",
+    });
+
+    // revisor adversarial — sempre gerado; só é acionado em tarefa sensível
+    await writeFromTemplate(
+      ".claude/agents/adversarial-reviewer.md.tpl",
+      path.join(CWD, ".claude", "agents", "adversarial-reviewer.md"),
+      data
+    );
+    agentListEntries.push({
+      name: "adversarial-reviewer",
+      desc: "tenta quebrar a implementação (só spec + diff); acionar apenas em tarefa sensível, depois do reviewer",
     });
 
     const formatAgentsList = (entries) =>
       entries.map((e) => `- \`${e.name}\` — ${e.desc}`).join("\n");
-
-    // analista de sistemas — sempre gerado; analisa a demanda e monta o plano
-    // de ação, mapeando subtarefas só para os agentes acima
-    await writeFromTemplate(
-      ".claude/agents/analyst.md.tpl",
-      path.join(CWD, ".claude", "agents", "analyst.md"),
-      { ...data, AGENTS_LIST: formatAgentsList(agentListEntries) }
-    );
-    agentListEntries.unshift({
-      name: "analyst",
-      desc: "análise da demanda (requirements.md) e plano de ação (tasks.md)",
-    });
 
     // arquiteto — sempre gerado, com a lista de agentes acima já preenchida
     const finalizeBlock = buildFinalizeBlock(answers.mergeStrategy, data.DEV_BRANCH);

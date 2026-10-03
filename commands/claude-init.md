@@ -1,5 +1,5 @@
 ---
-description: Gera a estrutura Claude Code (architect, analyst, agentes por camada, SDD, hooks) neste projeto, conversacionalmente — equivalente ao CLI `claude-init` pra quem não tem Node
+description: Gera a estrutura Claude Code (architect, agentes por camada, SDD, hooks) neste projeto, conversacionalmente — equivalente ao CLI `claude-init` pra quem não tem Node
 ---
 
 Você vai reproduzir exatamente o que o CLI Node deste mesmo pacote faz
@@ -76,17 +76,17 @@ em minúsculas, e procure estas palavras-chave:
 Gere um agente (a partir do template correspondente em
 `.claude/agents/<nome>-implementer.md.tpl` ou `queue-worker.md.tpl`) pra
 cada categoria que bateu. Se nenhuma bateu, gere
-`.claude/agents/implementer.md.tpl` genérico. `reviewer.md.tpl` é sempre
-gerado. Depois gere `analyst.md.tpl` (sempre), preenchendo
-`{{AGENTS_LIST}}` com a lista dos agentes gerados até aqui
-(`- \`nome\` — descrição`). Por fim, gere `architect.md.tpl` (sempre),
-preenchendo `{{AGENTS_LIST}}` com a mesma lista, acrescida do `analyst`
-no início (`- \`analyst\` — análise da demanda (requirements.md) e plano
-de ação (tasks.md)`).
+`.claude/agents/implementer.md.tpl` genérico. `reviewer.md.tpl` e
+`adversarial-reviewer.md.tpl` são sempre gerados. Por fim, gere
+`architect.md.tpl` (sempre), preenchendo `{{AGENTS_LIST}}` com a lista dos
+agentes gerados (`- \`nome\` — descrição`), incluindo o `reviewer` e o
+`adversarial-reviewer`.
 
 Os templates já trazem `model` e `effort` no frontmatter — copie sem
-alterar: `architect` e `analyst` usam `model: opus` + `effort: xhigh`; os
-demais agentes usam `model: sonnet` + `effort: xhigh`.
+alterar: `architect`, `reviewer` e `adversarial-reviewer` usam `model: opus` +
+`effort: high`; os agentes de implementação (`*-implementer`,
+`db-migrator`, `queue-worker`, `implementer`) usam `model: sonnet` +
+`effort: medium`.
 
 ## 3. Convenção de camadas do backend (models/controllers/services/repositories)
 
